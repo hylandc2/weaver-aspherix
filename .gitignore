@@ -1,0 +1,69 @@
+# --- Python build/cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Logs and temp files ---
+*.log
+*.tmp
+*.bak
+
+# --- Claude ---
+.claude/*
+!.claude/CLAUDE.md
+!.claude/decisions.md
+/CLAUDE.md
+.claudeignore
+
+# --- VSCode ---
+.vscode/
+
+# --- Data ---
+data/
+
+# --- Generated assets (EDA plots, etc.) ---
+assets/
+
+# --- Generated ML outputs (datasets, trained models, audits, metrics) ---
+artifacts/
+results/
+
+# --- Runtime / regenerated artifacts ---
+# Python build/dist
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Test/lint/type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+.ipython/
+
+# OS / editor cruft
+.DS_Store
+Thumbsdb
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local

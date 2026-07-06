@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "weaver-foo"
+version = "0.1.0"
+description = "Foo stage for Weaver"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "weaver-core>=0.1.0",
+    "weaver-compile>=0.1.0",
+]
+
+# PRIMARY: Git dependency for external deployment.
+# Pin `rev`: Weaver packages are unpublished 0.1.0, so ">=0.1.0" above pins
+# nothing — the git rev/tag is the only real pin.
+[tool.uv.sources]
+weaver-core = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-core", rev = "REPLACE_WITH_SHA_OR_TAG" }
+weaver-compile = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-compile", rev = "REPLACE_WITH_SHA_OR_TAG" }
+
+# ALTERNATIVE (commented): Local path for local development
+# [tool.uv.sources]
+# weaver-core = { path = "../weaver/packages/weaver-core", editable = true }
+# weaver-compile = { path = "../weaver/packages/weaver-compile", editable = true }
+
+# Dev tooling for the verify loop (uv sync installs this group by default).
+[dependency-groups]
+dev = [
+    "ruff>=0.15.10",
+    "pyright>=1.1.407",
+    "pytest>=8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/weaver"]
+
+[tool.ruff]
+line-length = 180
+src = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
+addopts = "-q"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = ["src", "tests"]
+exclude = ["venv", "**/node_modules", "**/__pycache__", "**/."]
+venvPath = "."
+venv = ".venv"
+reportUnusedVariable = false
+reportUnusedImport = false
+reportMissingTypeStubs = false

@@ -1,3 +1,8 @@
+# --- Asphyrix docs ---
+docs/documentation
+docs/API
+docs/aspherix-dem-guide.md
+
 # --- Python build/cache ---
 __pycache__/
 *.pyc

@@ -1,21 +1,29 @@
-# weaver-foo
+# weaver-aspherix
 
-Template for an external Weaver package: custom operator factories
-(`weaver.foo.operators`), compiler stages (`weaver.foo.stages`), and optional
-model-step functions (`weaver.foo.physics`). The package you author installs under the
+An external Weaver package that wraps the **Aspherix® DEM solver**: operator
+factories (`weaver.aspherix.operators`), a compiler stage (`weaver.aspherix.stages`),
+and an external orchestrator (`weaver.aspherix.orchestrators`) that assemble an
+Aspherix input script (`.asx`) from config and drive the run. It installs under the
 shared `weaver.` PEP 420 namespace and requires no changes to weaver-core or
 weaver-compile.
 
-> **This is a template repository** for authoring external Weaver packages. It ships
-> the project configuration (`pyproject.toml`, `.gitignore`) and documentation; you
-> author the Python modules following the guides in [docs/](docs/). Start with
-> [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md): rename `foo` / `weaver-foo` /
-> `weaver.foo` throughout to your real package name (must NOT be a reserved name — see
-> the guide's §3), and fill in your Weaver source location in `pyproject.toml`.
+The package layers deliberately:
+
+- **Pure `.asx` text** (`render.py`, `run.py`) — block renderers + assembler + a
+  case writer and dry-run `mpirun` launcher. No Weaver, no Aspherix needed to test.
+- **Weaver shapes** (`operators.py`, `orchestrators.py`, `stages.py`) — `build_case`
+  (an `Operate` factory), `AspherixRun` (an `Orchestrator`), and `build_aspherix_stage`
+  (the `StepBuilder` the compiler resolves from a study's operator JSON `ref`).
+
+See [docs/aspherix-dem-guide.md](docs/aspherix-dem-guide.md) for the Aspherix side
+(input-script language, run interface, output artifacts, and the Aspherix→Weaver
+mapping).
 
 ## Author
 
-Each guide contains the contracts plus a complete reference implementation:
+The authoring guides carry the Weaver contracts plus a complete reference
+implementation. They use the placeholder leaf name `foo` (`weaver.foo`) — read it as
+`aspherix` (`weaver.aspherix`) here:
 
 - Start here: [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md)
 - Operator factories (`operators.py`): [docs/authoring-operators.md](docs/authoring-operators.md)
@@ -31,8 +39,9 @@ NEVER create `src/weaver/__init__.py` — `weaver` is a PEP 420 namespace.
 
 This package depends on `weaver-core` and `weaver-compile`, which are source-only
 (not on PyPI). Their locations are declared in `pyproject.toml` under
-`[tool.uv.sources]` (git URL with a pinned `rev`, or local path). Dev tooling
-(`pytest`, `ruff`, `pyright`) installs from the `[dependency-groups] dev` group.
+`[tool.uv.sources]` (local path for development, or a git URL with a pinned `rev`).
+Dev tooling (`pytest`, `ruff`, `pyright`) installs from the `[dependency-groups] dev`
+group.
 
 ```
 uv sync
@@ -50,8 +59,9 @@ uv run pyright
 
 ## Wiring into a study repo
 
-Declare an operator JSON whose `ref` is `weaver.foo.stages:build_foo_stage`,
-an orchestrator JSON naming that operator, and a project stage that uses it.
-See [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md) §8 for the exact JSON, and
-[docs/study-json-reference.md](docs/study-json-reference.md) for a complete minimal
-study repo and the validate-phase diagnostics.
+Declare an operator JSON whose `ref` is `weaver.aspherix.stages:build_aspherix_stage`,
+an orchestrator JSON naming that operator and carrying the DEM `case` (see
+`tests/fixtures/study/` for a complete minimal example), and a project stage that
+uses it. [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md) §8 covers the JSON node
+shapes, and [docs/study-json-reference.md](docs/study-json-reference.md) the
+validate-phase diagnostics.

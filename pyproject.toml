@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "weaver-foo"
+name = "weaver-aspherix"
 version = "0.1.0"
-description = "Foo stage for Weaver"
+description = "Aspherix DEM stage for Weaver"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "weaver-core>=0.1.0",
@@ -16,13 +16,13 @@ dependencies = [
 # Pin `rev`: Weaver packages are unpublished 0.1.0, so ">=0.1.0" above pins
 # nothing — the git rev/tag is the only real pin.
 [tool.uv.sources]
-weaver-core = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-core", rev = "REPLACE_WITH_SHA_OR_TAG" }
-weaver-compile = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-compile", rev = "REPLACE_WITH_SHA_OR_TAG" }
+weaver-core = { path = "../Weaver/packages/weaver-core", editable = true }
+weaver-compile = { path = "../Weaver/packages/weaver-compile", editable = true }
 
-# ALTERNATIVE (commented): Local path for local development
+# ALTERNATIVE (commented): Git dependency for external deployment.
 # [tool.uv.sources]
-# weaver-core = { path = "../weaver/packages/weaver-core", editable = true }
-# weaver-compile = { path = "../weaver/packages/weaver-compile", editable = true }
+# weaver-core = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-core", rev = "REPLACE_WITH_SHA_OR_TAG" }
+# weaver-compile = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-compile", rev = "REPLACE_WITH_SHA_OR_TAG" }
 
 # Dev tooling for the verify loop (uv sync installs this group by default).
 [dependency-groups]

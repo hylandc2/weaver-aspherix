@@ -1,0 +1,7 @@
+{
+  "name": "demo",
+  "system": "demo",
+  "stages": [
+    {"name": "run", "op": "aspherix", "orchestrator": "aspherix_run"}
+  ]
+}

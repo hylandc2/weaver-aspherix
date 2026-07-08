@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from weaver.aspherix.orchestrators import AspherixRun
+from weaver.aspherix.orchestrators.run import AspherixRun
 from weaver.base.operator import Operator
 from weaver.compile import LowerError, ProjectNode, StageNode, Workspace
 from weaver.operators.orchestrate import Orchestrate

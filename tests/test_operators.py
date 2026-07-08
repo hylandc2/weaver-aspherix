@@ -7,8 +7,8 @@ from pathlib import Path
 from asx_util import normalize
 from test_render import BASIC_PARAMS, GOLDEN
 
-from weaver.aspherix.operators import build_case
-from weaver.aspherix.orchestrators import AspherixRun
+from weaver.aspherix.operators.build import build_case
+from weaver.aspherix.orchestrators.run import AspherixRun
 from weaver.operators.operate import Operate
 from weaver.base.orchestrator import Orchestrator
 

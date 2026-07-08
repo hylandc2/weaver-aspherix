@@ -4,7 +4,7 @@
 renders a case dict to .asx and writes the deck into the pipeline's artifact dir,
 returning `{name: <case path>}`. This is the fine-grained "build the input deck"
 seam; the whole build-and-launch run lives in the AspherixRun orchestrator
-(orchestrators.py). Both share the pure Layer 0 renderers in render.py.
+(orchestrators/run.py). Both share the pure Layer 0 renderers in render.py.
 
 The `case` mapping is the same structure Layer 0 tests (render.py): nested blocks
 whose numeric values are string tokens (`"5e6"`, not `5000000.0`).

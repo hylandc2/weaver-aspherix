@@ -6,8 +6,8 @@ Curated public surface:
     (Orchestrator), build_aspherix_stage (StepBuilder resolved from operator JSON).
 """
 
-from weaver.aspherix.operators import build_case
-from weaver.aspherix.orchestrators import AspherixRun
+from weaver.aspherix.operators.build import build_case
+from weaver.aspherix.orchestrators.run import AspherixRun
 from weaver.aspherix.render import assemble
 from weaver.aspherix.run import build_launch_argv, write_case
 from weaver.aspherix.stages import build_aspherix_stage

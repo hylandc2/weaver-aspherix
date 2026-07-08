@@ -19,22 +19,6 @@ See [docs/aspherix-dem-guide.md](docs/aspherix-dem-guide.md) for the Aspherix si
 (input-script language, run interface, output artifacts, and the Aspherix→Weaver
 mapping).
 
-## Author
-
-The authoring guides carry the Weaver contracts plus a complete reference
-implementation. They use the placeholder leaf name `foo` (`weaver.foo`) — read it as
-`aspherix` (`weaver.aspherix`) here:
-
-- Start here: [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md)
-- Operator factories (`operators.py`): [docs/authoring-operators.md](docs/authoring-operators.md)
-- Compiler stages / StepBuilders (`stages.py`) and external orchestrators (`orchestrators.py`): [docs/authoring-stages.md](docs/authoring-stages.md)
-- Model-step functions (`physics.py`): [docs/authoring-models.md](docs/authoring-models.md)
-- Tests (`tests/`): [docs/authoring-tests.md](docs/authoring-tests.md)
-- Study-repo JSON grammar, minimal study, and the validate phase: [docs/study-json-reference.md](docs/study-json-reference.md)
-- Package profile to fill in: [docs/PROFILE.md](docs/PROFILE.md)
-
-NEVER create `src/weaver/__init__.py` — `weaver` is a PEP 420 namespace.
-
 ## Install / sync
 
 This package depends on `weaver-core` and `weaver-compile`, which are source-only
@@ -62,6 +46,4 @@ uv run pyright
 Declare an operator JSON whose `ref` is `weaver.aspherix.stages:build_aspherix_stage`,
 an orchestrator JSON naming that operator and carrying the DEM `case` (see
 `tests/fixtures/study/` for a complete minimal example), and a project stage that
-uses it. [docs/AUTHORING_GUIDE.md](docs/AUTHORING_GUIDE.md) §8 covers the JSON node
-shapes, and [docs/study-json-reference.md](docs/study-json-reference.md) the
-validate-phase diagnostics.
+uses it.

@@ -35,8 +35,67 @@ def test_builder_writes_case_from_json(tmp_path: Path) -> None:
     summary = result[stage.name]
 
     assert summary["launched"] is False
-    assert summary["argv"] == ["mpirun", "-np", "4", "aspherix", "-in", "case.asx"]
+    assert summary["argv"] == ["mpiexec", "-np", "4", "aspherix", "-in", "case.asx"]
     assert normalize(Path(summary["case"]).read_text()) == normalize(GOLDEN.read_text())
+
+
+def test_builder_accepts_case_without_mesh(tmp_path: Path) -> None:
+    workspace = Workspace.scan(STUDY)
+    project = workspace.projects["demo"]
+    stage = project.stages[0]
+    orchestrator = workspace.orchestrators[stage.orchestrator]
+    assert orchestrator.model_extra is not None
+    del orchestrator.model_extra["case"]["mesh"]
+
+    step = build_aspherix_stage(workspace, project, stage)
+    result = step.do({}, {"repo_root": str(tmp_path), "artifact_dir": str(tmp_path)})
+    assert "mesh" not in Path(result[stage.name]["case"]).read_text()
+
+
+def test_builder_reads_execute() -> None:
+    workspace = Workspace.scan(STUDY)
+    project = workspace.projects["demo"]
+    stage = project.stages[0]
+
+    # Fixture carries no execute key -> defaults to False.
+    assert build_aspherix_stage(workspace, project, stage).info["execute"] is False
+
+    orchestrator = workspace.orchestrators[stage.orchestrator]
+    assert orchestrator.model_extra is not None
+    orchestrator.model_extra["execute"] = True
+    assert build_aspherix_stage(workspace, project, stage).info["execute"] is True
+
+
+def test_builder_rejects_non_bool_execute() -> None:
+    workspace = Workspace.scan(STUDY)
+    project = workspace.projects["demo"]
+    stage = project.stages[0]
+    orchestrator = workspace.orchestrators[stage.orchestrator]
+    assert orchestrator.model_extra is not None
+    orchestrator.model_extra["execute"] = "yes"
+
+    try:
+        build_aspherix_stage(workspace, project, stage)
+    except LowerError as exc:
+        assert "execute" in str(exc)
+    else:
+        raise AssertionError("expected LowerError for a non-bool execute")
+
+
+def test_builder_rejects_ambiguous_run_block() -> None:
+    workspace = Workspace.scan(STUDY)
+    project = workspace.projects["demo"]
+    stage = project.stages[0]
+    orchestrator = workspace.orchestrators[stage.orchestrator]
+    assert orchestrator.model_extra is not None
+    orchestrator.model_extra["case"]["run"] = {"time": "1e-1", "time_steps": "2000"}
+
+    try:
+        build_aspherix_stage(workspace, project, stage)
+    except LowerError as exc:
+        assert "run" in str(exc)
+    else:
+        raise AssertionError("expected LowerError for an ambiguous run block")
 
 
 def test_builder_rejects_case_missing_blocks() -> None:

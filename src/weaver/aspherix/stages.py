@@ -23,8 +23,9 @@ from weaver.operators.orchestrate import Orchestrate
 __all__ = ["build_aspherix_stage"]
 
 # Top-level keys every case block needs — validated at build time so a malformed
-# case fails when the stage is lowered, not with a KeyError mid-run.
-_REQUIRED_CASE_KEYS = ("shape", "domain", "material", "contact", "timestep", "particles", "mesh", "output", "run")
+# case fails when the stage is lowered, not with a KeyError mid-run. neighbor_list,
+# walls, and mesh are optional (see render.assemble).
+_REQUIRED_CASE_KEYS = ("shape", "domain", "material", "contact", "timestep", "particles", "output", "run")
 
 
 def build_aspherix_stage(workspace: Workspace, project: ProjectNode, stage: StageNode) -> Operator:
@@ -39,17 +40,24 @@ def build_aspherix_stage(workspace: Workspace, project: ProjectNode, stage: Stag
     if not isinstance(nprocs, int) or isinstance(nprocs, bool) or nprocs < 1:
         raise LowerError(f"orchestrator {orchestrator.name!r} nprocs must be an int >= 1, got {nprocs!r}")
 
+    execute = params.get("execute", False)
+    if not isinstance(execute, bool):
+        raise LowerError(f"orchestrator {orchestrator.name!r} execute must be a bool, got {execute!r}")
+
     case = params.get("case")
     if not isinstance(case, dict):
         raise LowerError(f"orchestrator {orchestrator.name!r} must carry a 'case' object, got {case!r}")
     missing = [key for key in _REQUIRED_CASE_KEYS if key not in case]
     if missing:
         raise LowerError(f"orchestrator {orchestrator.name!r} case is missing required blocks: {missing}")
+    run_cfg = case["run"]
+    if not isinstance(run_cfg, dict) or (("time" in run_cfg) == ("time_steps" in run_cfg)):
+        raise LowerError(f"orchestrator {orchestrator.name!r} case run block needs exactly one of 'time' or 'time_steps'")
 
     return Orchestrate(
         stage.name,
-        AspherixRun(case=case, nprocs=nprocs),
+        AspherixRun(case=case, nprocs=nprocs, execute=execute),
         output_field=stage.name,
         expect=dict,
-        info={"builder": "build_aspherix_stage", "orchestrator": stage.orchestrator, "nprocs": nprocs},
+        info={"builder": "build_aspherix_stage", "orchestrator": stage.orchestrator, "nprocs": nprocs, "execute": execute},
     )

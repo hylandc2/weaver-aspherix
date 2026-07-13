@@ -23,10 +23,12 @@ __all__ = [
     "init_block",
     "materials_block",
     "mesh_block",
+    "neighbor_block",
     "output_block",
     "particles_block",
     "run_block",
     "timestep_block",
+    "walls_block",
 ]
 
 
@@ -39,6 +41,12 @@ def init_block(params: Mapping[str, Any]) -> str:
     """particle_shape + simulation_domain."""
     domain = params["domain"]
     return f"particle_shape {params['shape']}\nsimulation_domain low {_triple(domain['low'])} high {_triple(domain['high'])}"
+
+
+def neighbor_block(params: Mapping[str, Any]) -> str:
+    """neighbor_list skin_size .. stencil_check .."""
+    neighbor = params["neighbor_list"]
+    return f"neighbor_list skin_size {neighbor['skin_size']} stencil_check {neighbor['stencil_check']}"
 
 
 def materials_block(params: Mapping[str, Any]) -> str:
@@ -59,6 +67,11 @@ def contact_block(params: Mapping[str, Any]) -> str:
 def timestep_block(params: Mapping[str, Any]) -> str:
     """simulation_timestep."""
     return f"simulation_timestep {params['timestep']}"
+
+
+def walls_block(params: Mapping[str, Any]) -> str:
+    """One primitive_wall plane per entry."""
+    return "\n".join(f"primitive_wall id {wall['id']} material {wall['material']} type plane normal_axis {wall['axis']} offset {wall['offset']}" for wall in params["walls"])
 
 
 def particles_block(params: Mapping[str, Any]) -> str:
@@ -86,20 +99,28 @@ def output_block(params: Mapping[str, Any]) -> str:
 
 
 def run_block(params: Mapping[str, Any]) -> str:
-    """simulate time <T>."""
-    return f"simulate time {params['run']['time']}"
+    """simulate time <T> or simulate time_steps <N> (exactly one)."""
+    run = params["run"]
+    if ("time" in run) == ("time_steps" in run):
+        raise ValueError("run block needs exactly one of 'time' or 'time_steps'")
+    return f"simulate time {run['time']}" if "time" in run else f"simulate time_steps {run['time_steps']}"
 
 
 def assemble(params: Mapping[str, Any]) -> str:
-    """Concatenate every block in the order Aspherix requires (§6)."""
-    blocks = [
-        init_block(params),
-        materials_block(params),
-        contact_block(params),
-        timestep_block(params),
-        particles_block(params),
-        mesh_block(params),
-        output_block(params),
-        run_block(params),
-    ]
+    """Concatenate the blocks in the order Aspherix requires (§6).
+
+    neighbor_list, walls, and mesh are optional — their blocks are skipped when
+    the key is absent, so a mesh-walled case and a primitive-walled case both
+    assemble from the same vocabulary.
+    """
+    blocks = [init_block(params)]
+    if "neighbor_list" in params:
+        blocks.append(neighbor_block(params))
+    blocks += [materials_block(params), contact_block(params), timestep_block(params)]
+    if "walls" in params:
+        blocks.append(walls_block(params))
+    blocks.append(particles_block(params))
+    if "mesh" in params:
+        blocks.append(mesh_block(params))
+    blocks += [output_block(params), run_block(params)]
     return "\n\n".join(blocks) + "\n"

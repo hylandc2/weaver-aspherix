@@ -9,7 +9,6 @@ description = "Aspherix DEM stage for Weaver"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "weaver-core>=0.1.0",
-    "weaver-compile>=0.1.0",
 ]
 
 # PRIMARY: Git dependency for external deployment.
@@ -17,12 +16,10 @@ dependencies = [
 # nothing — the git rev/tag is the only real pin.
 [tool.uv.sources]
 weaver-core = { path = "../Weaver/packages/weaver-core", editable = true }
-weaver-compile = { path = "../Weaver/packages/weaver-compile", editable = true }
 
 # ALTERNATIVE (commented): Git dependency for external deployment.
 # [tool.uv.sources]
 # weaver-core = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-core", rev = "REPLACE_WITH_SHA_OR_TAG" }
-# weaver-compile = { git = "https://github.com/YOUR_ORG/weaver.git", subdirectory = "packages/weaver-compile", rev = "REPLACE_WITH_SHA_OR_TAG" }
 
 # Dev tooling for the verify loop (uv sync installs this group by default).
 [dependency-groups]

@@ -1,40 +1,18 @@
-"""Layer 0 run tests: case writer, launch argv, binary resolution, and launch()."""
+"""solver.py: launch argv, binary resolution, cwd/log contract, timeout."""
 
 from __future__ import annotations
 
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 import pytest
-from asx_util import normalize
-from test_render import BASIC_PARAMS, GOLDEN
 
-from weaver.aspherix.run import build_launch_argv, launch, resolve_aspherix_bin, resolve_mpi_bin, write_case
+from weaver.aspherix.solver import build_launch_argv, launch, resolve_aspherix_bin, resolve_mpi_bin
 
 
-@pytest.fixture(autouse=True)
-def _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Never read the machine's real launcher env vars in tests."""
-    monkeypatch.delenv("ASPHERIX_BIN", raising=False)
-    monkeypatch.delenv("ASPHERIX_MPI_BIN", raising=False)
-
-
-# Step 5: write_case writes a file whose content matches the golden.
-def test_write_case_roundtrips_golden(tmp_path: Path) -> None:
-    case_path = write_case(BASIC_PARAMS, tmp_path)
-    assert case_path == tmp_path / "case.asx"
-    assert case_path.exists()
-    assert normalize(case_path.read_text()) == normalize(GOLDEN.read_text())
-
-
-def test_write_case_custom_filename(tmp_path: Path) -> None:
-    case_path = write_case(BASIC_PARAMS, tmp_path / "runs", filename="drop.asx")
-    assert case_path == tmp_path / "runs" / "drop.asx"
-    assert case_path.exists()
-
-
-# Step 6: build_launch_argv builds the argv without executing anything.
+# build_launch_argv builds the argv without executing anything.
 def test_build_launch_argv_default() -> None:
     argv = build_launch_argv(Path("/some/dir/case.asx"))
     assert argv == ["mpiexec", "-np", "4", "aspherix", "-in", "case.asx"]
@@ -90,10 +68,32 @@ def test_resolve_mpi_bin_none(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_launch_runs_and_writes_log(tmp_path: Path) -> None:
     proc = launch([sys.executable, "-c", "print('ok')"], cwd=tmp_path)
     assert proc.returncode == 0
-    assert "ok" in (tmp_path / "aspherix.log").read_text()
+    assert "ok" in (tmp_path / "aspherix.log").read_text(encoding="utf-8")
 
 
 def test_launch_captures_stderr_and_returncode(tmp_path: Path) -> None:
     proc = launch([sys.executable, "-c", "import sys; sys.stderr.write('boom'); sys.exit(3)"], cwd=tmp_path)
     assert proc.returncode == 3
-    assert "boom" in (tmp_path / "aspherix.log").read_text()
+    assert "boom" in (tmp_path / "aspherix.log").read_text(encoding="utf-8")
+
+
+def test_launch_non_utf8_output_does_not_fail(tmp_path: Path) -> None:
+    # Bare text=True would decode with the locale codec (cp1252) and could raise;
+    # utf-8 + errors="replace" must swallow arbitrary bytes.
+    proc = launch(
+        [sys.executable, "-c", "import sys; sys.stdout.buffer.write(b'caf\\xe9 \\xff')"],
+        cwd=tmp_path,
+    )
+    assert proc.returncode == 0
+    assert "caf" in (tmp_path / "aspherix.log").read_text(encoding="utf-8")
+
+
+def test_launch_timeout_kills_and_still_writes_log(tmp_path: Path) -> None:
+    with pytest.raises(subprocess.TimeoutExpired):
+        launch(
+            [sys.executable, "-c", "import time; print('started', flush=True); time.sleep(30)"],
+            cwd=tmp_path, timeout=1.0,
+        )
+    log = (tmp_path / "aspherix.log").read_text(encoding="utf-8")
+    assert "timeout" in log
+    assert "killed after" in log

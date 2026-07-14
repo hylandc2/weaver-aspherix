@@ -1,22 +1,14 @@
-"""weaver.aspherix — Aspherix DEM wrapper.
+"""weaver.aspherix — deck-as-template Aspherix wrapper for Weaver.
 
-Curated public surface:
-  - Layer 0 (pure .asx text): assemble, write_case, build_launch_argv.
-  - Layer 1 (Weaver shapes): build_case (Operate factory), AspherixRun
-    (Orchestrator), build_aspherix_stage (StepBuilder resolved from operator JSON).
+The study owns a real ``.asx`` deck with ``{{name}}`` holes; this package is
+render → stage assets → launch → observe, wired as model steps of a
+``simulate`` model. It owns zero Aspherix vocabulary. Public surface:
+
+    from weaver.aspherix import bind
+    run_case, observe, observe_bytes = bind(__file__)
 """
 
-from weaver.aspherix.operators.build import build_case
-from weaver.aspherix.orchestrators.run import AspherixRun
-from weaver.aspherix.render import assemble
-from weaver.aspherix.run import build_launch_argv, write_case
-from weaver.aspherix.stages import build_aspherix_stage
+from weaver.aspherix.errors import AsxError
+from weaver.aspherix.steps import bind
 
-__all__ = [
-    "AspherixRun",
-    "assemble",
-    "build_aspherix_stage",
-    "build_case",
-    "build_launch_argv",
-    "write_case",
-]
+__all__ = ["AsxError", "bind"]

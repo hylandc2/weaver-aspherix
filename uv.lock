@@ -644,7 +644,6 @@ name = "weaver-aspherix"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "weaver-compile" },
     { name = "weaver-core" },
 ]
 
@@ -656,31 +655,13 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "weaver-compile", editable = "../Weaver/packages/weaver-compile" },
-    { name = "weaver-core", editable = "../Weaver/packages/weaver-core" },
-]
+requires-dist = [{ name = "weaver-core", editable = "../Weaver/packages/weaver-core" }]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "pyright", specifier = ">=1.1.407" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.15.10" },
-]
-
-[[package]]
-name = "weaver-compile"
-version = "0.1.0"
-source = { editable = "../Weaver/packages/weaver-compile" }
-dependencies = [
-    { name = "pydantic" },
-    { name = "weaver-core" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "weaver-core", editable = "../Weaver/packages/weaver-core" },
 ]
 
 [[package]]

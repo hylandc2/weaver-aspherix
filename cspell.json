@@ -2,6 +2,22 @@
     "version": "0.2",
     "language": "en",
     "useGitignore": true,
-    "words": [],
+    "words": [
+        "aspherix",
+        "Aspherix",
+        "asx",
+        "DEM",
+        "KinEng",
+        "levelname",
+        "mpiexec",
+        "mpirun",
+        "nprocs",
+        "pyproject",
+        "pyright",
+        "pytest",
+        "restitution",
+        "rlmcloud",
+        "timeseries"
+    ],
     "ignorePaths": []
 }

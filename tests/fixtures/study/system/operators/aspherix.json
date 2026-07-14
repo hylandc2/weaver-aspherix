@@ -1,7 +1,0 @@
-{
-  "name": "aspherix",
-  "kind": "operate",
-  "ref": "weaver.aspherix.stages:build_aspherix_stage",
-  "produces_table": false,
-  "description": "assemble + write a DEM .asx and build the (dry-run) mpirun launch"
-}
